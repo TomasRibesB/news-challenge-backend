@@ -3,40 +3,51 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  Put,
+  Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { UpdateNewsDto } from './dto/update-news.dto';
+import { News } from './entities/news.entity';
 
 @Controller('news')
 export class NewsController {
   constructor(private readonly newsService: NewsService) {}
 
-  @Post()
-  create(@Body() createNewsDto: CreateNewsDto) {
-    return this.newsService.create(createNewsDto);
-  }
-
   @Get()
-  findAll() {
+  findAll(): Promise<News[]> {
     return this.newsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.newsService.findOne(+id);
+  @Get('search')
+  search(@Query('term') term: string): Promise<News[]> {
+    return this.newsService.search(term);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNewsDto: UpdateNewsDto) {
-    return this.newsService.update(+id, updateNewsDto);
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<News> {
+    return this.newsService.findOne(id);
+  }
+
+  @Post()
+  create(@Body() dto: CreateNewsDto): Promise<News> {
+    return this.newsService.create(dto);
+  }
+
+  @Put(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateNewsDto,
+  ): Promise<News> {
+    return this.newsService.update(id, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.newsService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.newsService.remove(id);
   }
 }

@@ -1,1 +1,22 @@
-export class News {}
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+
+@Entity()
+export class News {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  title: string;
+
+  @Column('text')
+  body: string;
+
+  @Column()
+  image_url: string;
+
+  @Column()
+  author: string;
+
+  @Column({ type: 'timestamp' })
+  date: Date;
+}

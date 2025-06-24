@@ -1,26 +1,50 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { News } from './entities/news.entity';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { UpdateNewsDto } from './dto/update-news.dto';
 
 @Injectable()
 export class NewsService {
-  create(createNewsDto: CreateNewsDto) {
-    return 'This action adds a new news';
+  constructor(
+    @InjectRepository(News)
+    private readonly repo: Repository<News>,
+  ) {}
+
+  findAll(): Promise<News[]> {
+    return this.repo.find();
   }
 
-  findAll() {
-    return `This action returns all news`;
+  async findOne(id: number): Promise<News> {
+    const news = await this.repo.findOne({ where: { id } });
+    if (!news) {
+      throw new NotFoundException(`News with id ${id} not found`);
+    }
+    return news;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} news`;
+  create(dto: CreateNewsDto): Promise<News> {
+    const news = this.repo.create({
+      ...dto,
+      date: new Date(dto.date),
+    });
+    return this.repo.save(news);
   }
 
-  update(id: number, updateNewsDto: UpdateNewsDto) {
-    return `This action updates a #${id} news`;
+  async update(id: number, dto: UpdateNewsDto): Promise<News> {
+    await this.repo.update(id, dto);
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} news`;
+  remove(id: number): Promise<void> {
+    return this.repo.delete(id).then(() => undefined);
+  }
+
+  search(term: string): Promise<News[]> {
+    return this.repo
+      .createQueryBuilder('news')
+      .where('news.title ILIKE :t OR news.author ILIKE :t', { t: `%${term}%` })
+      .getMany();
   }
 }
