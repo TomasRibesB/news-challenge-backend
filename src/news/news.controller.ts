@@ -27,14 +27,31 @@ export class NewsController {
   constructor(private readonly newsService: NewsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Listar todas las noticias' })
+  @ApiOperation({
+    summary: 'Listar todas las noticias con paginación y selección de claves',
+  })
+  @ApiQuery({ name: 'page', required: false, description: 'Número de página' })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Cantidad de elementos por página',
+  })
+  @ApiQuery({
+    name: 'fields',
+    required: false,
+    description: 'Claves a seleccionar, separadas por comas',
+  })
   @ApiResponse({
     status: 200,
     description: 'Listado obtenido correctamente.',
     type: [News],
   })
-  findAll(): Promise<News[]> {
-    return this.newsService.findAll();
+  findAll(
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('fields') fields?: string,
+  ): Promise<Partial<News>[]> {
+    return this.newsService.findAll({ page, limit, fields });
   }
 
   @Get('search')

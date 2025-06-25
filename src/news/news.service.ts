@@ -12,8 +12,23 @@ export class NewsService {
     private readonly repo: Repository<News>,
   ) {}
 
-  findAll(): Promise<News[]> {
-    return this.repo.find();
+  findAll({
+    page,
+    limit,
+    fields,
+  }: {
+    page: number;
+    limit: number;
+    fields?: string;
+  }): Promise<Partial<News>[]> {
+    const skip = (page - 1) * limit;
+    const select = fields ? (fields.split(',') as (keyof News)[]) : undefined;
+
+    return this.repo.find({
+      skip,
+      take: limit,
+      select,
+    });
   }
 
   async findOne(id: number): Promise<News> {

@@ -58,8 +58,14 @@ describe('NewsService', () => {
       },
     ];
     repo.find!.mockResolvedValue(fakeNews);
-    await expect(service.findAll()).resolves.toEqual(fakeNews);
-    expect(repo.find).toHaveBeenCalled();
+    await expect(
+      service.findAll({ page: 1, limit: 10, fields: 'id,title' }),
+    ).resolves.toEqual(fakeNews);
+    expect(repo.find).toHaveBeenCalledWith({
+      skip: 0,
+      take: 10,
+      select: ['id', 'title'],
+    });
   });
 
   it('findOne() should return one news', async () => {
