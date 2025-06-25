@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { NewsModule } from './news/news.module';
+import { SeederModule } from './seeder/seeder.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.env.${process.env.NODE_ENV || 'dev'}`,
+      envFilePath: [`.env.${process.env.NODE_ENV}`, '.env.dev'],
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
@@ -27,8 +26,9 @@ import { NewsModule } from './news/news.module';
       }),
     }),
     NewsModule,
+    SeederModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

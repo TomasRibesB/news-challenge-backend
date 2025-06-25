@@ -37,8 +37,11 @@ export class NewsService {
     return this.findOne(id);
   }
 
-  remove(id: number): Promise<void> {
-    return this.repo.delete(id).then(() => undefined);
+  async remove(id: number): Promise<void> {
+    const res = await this.repo.delete(id);
+    if (res.affected === 0) {
+      throw new NotFoundException(`No se encontró noticia con id ${id}`);
+    }
   }
 
   search(term: string): Promise<News[]> {
@@ -46,5 +49,9 @@ export class NewsService {
       .createQueryBuilder('news')
       .where('news.title ILIKE :t OR news.author ILIKE :t', { t: `%${term}%` })
       .getMany();
+  }
+
+  count(): Promise<number> {
+    return this.repo.count();
   }
 }

@@ -8,6 +8,7 @@ import {
   Put,
   Query,
   ParseIntPipe,
+  HttpCode,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -91,6 +92,7 @@ export class NewsController {
   }
 
   @Delete(':id')
+  @HttpCode(204)
   @ApiOperation({ summary: 'Eliminar una noticia por ID' })
   @ApiParam({ name: 'id', type: Number, description: 'ID de la noticia' })
   @ApiResponse({
