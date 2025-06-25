@@ -1,8 +1,10 @@
 services:
   db:
     image: postgres:15
-    env_file:
-      - ${ENV_FILE}
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - db-data:/var/lib/postgresql/data
     ports:
@@ -12,10 +14,17 @@ services:
     build: .
     depends_on:
       - db
+    env_file:
+      - .env.dev
+      - .env.prod
     ports:
       - "3000:3000"
-    env_file:
-      - ${ENV_FILE}
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
     command: ["npm", "run", "start:prod"]
 
 volumes:
